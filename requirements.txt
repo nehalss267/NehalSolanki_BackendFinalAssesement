@@ -1,0 +1,14 @@
+Django==5.2.18
+PyYAML==6.0.3
+asgiref==3.13.0
+djangorestframework==3.18.3
+drf-yasg==1.21.18
+gunicorn==26.2.0
+inflection==0.5.1
+packaging==26.3
+psycopg2-binary==2.9.12
+python-dotenv==1.2.2
+pytz==2026.3.post1
+sqlparse==0.6.0
+uritemplate==4.2.0
+whitenoise==6.12.0
