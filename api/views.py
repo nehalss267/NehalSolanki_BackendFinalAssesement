@@ -1,3 +1,3 @@
-from django.shortcuts import render
+from .serializers import HealthCheckViewSet, UserViewSet
 
-# Create your views here.
+__all__ = ['HealthCheckViewSet', 'UserViewSet']
