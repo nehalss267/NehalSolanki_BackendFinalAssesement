@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Backend Project
 
 ## Setup Instructions
@@ -90,3 +91,6 @@ Access the Django admin at [http://localhost:8000/admin/](http://localhost:8000/
 ## License
 
 This project is for educational purposes.
+=======
+
+>>>>>>> 9d60f14b75b604d6dec401ef48bae3b943095358
