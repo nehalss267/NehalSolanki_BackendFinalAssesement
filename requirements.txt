@@ -9,6 +9,7 @@ packaging==26.3
 psycopg2-binary==2.9.12
 python-dotenv==1.2.2
 pytz==2026.3.post1
+requests==2.33.1
 sqlparse==0.6.0
 uritemplate==4.2.0
 whitenoise==6.12.0

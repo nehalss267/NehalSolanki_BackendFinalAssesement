@@ -45,6 +45,23 @@ REST_FRAMEWORK = {
     ],
 }
 
+HUBSPOT_API_BASE_URL = os.getenv('HUBSPOT_API_BASE_URL', 'https://api.hubapi.com')
+HUBSPOT_API_TIMEOUT = int(os.getenv('HUBSPOT_API_TIMEOUT', '30'))
+HUBSPOT_PAGE_SIZE = int(os.getenv('HUBSPOT_PAGE_SIZE', '100'))
+HUBSPOT_MAX_RETRIES = int(os.getenv('HUBSPOT_MAX_RETRIES', '3'))
+HUBSPOT_VALIDATE_TOKEN_ON_START = (
+    os.getenv('HUBSPOT_VALIDATE_TOKEN_ON_START', 'True').lower() == 'true'
+)
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'DOC_EXPANSION': 'none',
+    'DEFAULT_MODEL_RENDERING': 'example',
+    'VALIDATOR_URL': None,
+    'TAGS_SORTER': 'alpha',
+    'OPERATIONS_SORTER': 'alpha',
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

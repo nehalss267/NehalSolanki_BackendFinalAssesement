@@ -1,163 +1,193 @@
 # Backend Project
 
-## Overview
+Django REST API for extracting HubSpot deals. The service runs extraction jobs
+in the background and exposes endpoints to start, monitor, cancel, and remove
+jobs. Swagger UI and ReDoc are available for interactive documentation.
 
-This is a complete Django REST API project built with Django REST Framework (DRF) and includes interactive API documentation using Swagger/OpenAPI (drf-yasg). The project provides a clean, scalable backend structure with example API endpoints for health checks and user management.
-
-## Features
-
-- **Django 5.2** - Modern Python web framework
-- **Django REST Framework** - Powerful toolkit for building Web APIs
-- **Swagger/OpenAPI Documentation** - Interactive API docs with Swagger UI and ReDoc
-- **Environment Configuration** - Secure configuration using .env files
-- **RESTful Architecture** - Clean API design following REST principles
-- **CORS Ready** - Configurable for cross-origin requests
-- **Production Ready** - Includes deployment best practices
-
-## Tech Stack
+## Requirements
 
 - Python 3.11+
-- Django 5.2.18
-- Django REST Framework 3.18.3
-- drf-yasg 1.21.18
-- SQLite (default) / PostgreSQL ready
+- pip
+- A HubSpot private app token with `crm.objects.deals.read`
 
-## Prerequisites
+## Setup
 
-Before you begin, ensure you have the following installed:
-- Python 3.11 or higher
-- pip (Python package manager)
-- Virtual environment tool (venv)
-
-## Setup Instructions
-
-### 1. Clone the Repository
+Clone the repository:
 
 ```bash
 git clone https://github.com/nehalss267/NehalSolanki_BackendFinalAssesement.git
+cd NehalSolanki_BackendFinalAssesement
 ```
 
+Create and activate a virtual environment.
 
-### 2. Create and Activate Virtual Environment
+Windows:
 
-**Windows:**
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
-**macOS/Linux:**
+macOS and Linux:
+
 ```bash
 python -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Install Dependencies
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-
-### 4. Configure Environment Variables
-
-Copy the example environment file and update it with your settings:
+Create `.env` from the example file:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit .env file with your configuration:
+Edit `.env`:
+
 ```env
 DEBUG=True
 SECRET_KEY=your-secret-key-here
 ALLOWED_HOSTS=localhost,127.0.0.1
+
+HUBSPOT_API_BASE_URL=https://api.hubapi.com
+HUBSPOT_API_TIMEOUT=30
+HUBSPOT_PAGE_SIZE=100
+HUBSPOT_MAX_RETRIES=3
+HUBSPOT_VALIDATE_TOKEN_ON_START=True
 ```
 
-
-### 5. Run Database Migrations
+Run migrations and start the server:
 
 ```bash
 python manage.py migrate
+python manage.py runserver
 ```
 
-### 6. Create Superuser (Optional)
+The API is available at `http://localhost:8000`.
 
-To access the Django admin panel:
+## Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEBUG` | `True` | Django debug mode |
+| `SECRET_KEY` | development key | Django secret key |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated allowed hosts |
+| `HUBSPOT_API_BASE_URL` | `https://api.hubapi.com` | HubSpot API base URL |
+| `HUBSPOT_API_TIMEOUT` | `30` | Request timeout in seconds |
+| `HUBSPOT_PAGE_SIZE` | `100` | Deal page size |
+| `HUBSPOT_MAX_RETRIES` | `3` | Retry count for rate limits and network errors |
+| `HUBSPOT_VALIDATE_TOKEN_ON_START` | `True` | Validate the token before creating a job |
+
+## API documentation
+
+| UI | URL |
+|----|-----|
+| Swagger UI | `http://localhost:8000/docs/` |
+| Swagger UI alias | `http://localhost:8000/swagger/` |
+| ReDoc | `http://localhost:8000/redoc/` |
+| OpenAPI JSON | `http://localhost:8000/swagger.json` |
+| OpenAPI YAML | `http://localhost:8000/swagger.yaml` |
+| API root | `http://localhost:8000/api/` |
+
+See [`docs/api-documentation.md`](docs/api-documentation.md) for request and
+response details.
+
+## Endpoints
+
+### Extraction API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/health` | GET | Health check |
+| `/api/v1/scan/start` | POST | Start an extraction job |
+| `/api/v1/scan/status/{job_id}` | GET | Get job status |
+| `/api/v1/scan/result/{job_id}` | GET | Get results for a completed job |
+| `/api/v1/scan/cancel/{job_id}` | POST | Cancel a pending or running job |
+| `/api/v1/scan/remove/{job_id}` | DELETE | Delete a job and its records |
+| `/api/v1/jobs/jobs` | GET | List jobs |
+| `/api/v1/jobs/statistics` | GET | Get job statistics |
+
+Send the HubSpot token in the JSON body or the `X-API-Token` header. Tokens are
+stored as SHA-256 fingerprints, not plain text.
+
+```bash
+curl -X POST http://localhost:8000/api/v1/scan/start \
+  -H "Content-Type: application/json" \
+  -d '{"api_token": "pat-na1-your-private-app-token", "limit": 100}'
+```
+
+```bash
+curl http://localhost:8000/api/v1/scan/status/<job_id>
+curl "http://localhost:8000/api/v1/scan/result/<job_id>?limit=100&offset=0"
+curl -X POST http://localhost:8000/api/v1/scan/cancel/<job_id>
+curl -X DELETE http://localhost:8000/api/v1/scan/remove/<job_id>
+curl "http://localhost:8000/api/v1/jobs/jobs?status=completed"
+curl http://localhost:8000/api/v1/jobs/statistics
+```
+
+### Example endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/health/` | GET | Health check |
+| `/api/health/ping/` | GET | Ping |
+| `/api/users/` | GET | List users |
+| `/api/users/{id}/` | GET | Get one user |
+
+## Admin
+
+The Django admin is available at `http://localhost:8000/admin/`. Create an
+account with:
+
 ```bash
 python manage.py createsuperuser
 ```
 
-
-### 7. Run Development Server
-
-```bash
-python manage.py runserver
-```
-
-
-The server will start at http://localhost:8000
-
-## API Documentation
-
-Once the server is running, access the interactive API documentation:
-
-| Documentation | URL | Description |
-|---------------|-----|-------------|
-| Swagger UI | [http://localhost:8000/swagger/](http://localhost:8000/swagger/) | Interactive API testing interface |
-| ReDoc | [http://localhost:8000/redoc/](http://localhost:8000/redoc/) | Clean, responsive API documentation |
-| API Root | [http://localhost:8000/api/](http://localhost:8000/api/) | Browseable API root |
-
-## Available Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| /api/health/ | GET | Check API health status |
-| /api/health/ping/ | GET | Simple ping test endpoint |
-| /api/users/ | GET | List all registered users |
-| /api/users/{id}/ | GET | Retrieve specific user details |
-
-## Admin Panel
-
-Access the Django admin interface at [http://localhost:8000/admin/](http://localhost:8000/admin/) to manage users and data.
-
-## Project Structure
-
-`
-backendProject/
-├── api/                # API application
-│   ├── serializers.py  # Data serializers
-│   ├── views.py        # API views/viewsets
-│   ├── urls.py         # API routes
-│   └── ...
-├── core/               # Project configuration
-│   ├── settings.py     # Django settings
-│   ├── urls.py         # Main URL configuration
-│   └── ...
-├── manage.py           # Django management script
-├── requirements.txt    # Project dependencies
-├── .env.example        # Environment variables template
-└── README.md           # Project documentation
-`
-
-## Running Tests
+## Tests
 
 ```bash
 python manage.py test
-`
+```
 
-## Deployment Notes
+The test suite covers seeded job data, pagination, statistics, job state
+changes, invalid input, invalid job IDs, upstream failures, and rate limiting.
 
-For production deployment:
-1. Set DEBUG=False in .env
-2. Update SECRET_KEY with a secure random key
-3. Configure ALLOWED_HOSTS with your domain
-4. Use a production database (PostgreSQL recommended)
-5. Collect static files: python manage.py collectstatic
-6. Use a WSGI server like Gunicorn
+The live HubSpot test is skipped unless a token is provided:
 
-## License
+```bash
+HUBSPOT_TEST_TOKEN=pat-na1-your-token python manage.py test api.tests.RealExtractionTests
+```
 
-This project is for educational purposes.
-=======
+## Project layout
 
+```text
+api/                  API application
+  migrations/         Database migrations
+  services/           HubSpot client and extraction runner
+  admin.py            Admin registrations
+  models.py           ExtractionJob and ExtractedRecord
+  serializers.py      Request and response serializers
+  tests.py            Test suite
+  urls.py             API routes
+  views.py            API views
+core/                 Django project settings and root URLs
+docs/                 API documentation
+manage.py             Django entry point
+requirements.txt      Python dependencies
+.env.example          Environment variable template
+```
+
+## Deployment
+
+1. Set `DEBUG=False`.
+2. Set a new `SECRET_KEY`.
+3. Set `ALLOWED_HOSTS` to the deployed domain.
+4. Use PostgreSQL instead of SQLite.
+5. Run `python manage.py collectstatic`.
+6. Run under Gunicorn or another WSGI server.
+7. Use a task queue such as Celery or RQ for extraction jobs.
